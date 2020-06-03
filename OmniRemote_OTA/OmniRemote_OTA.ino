@@ -1,9 +1,32 @@
-/**
-   httpUpdateSecure.ino
-
-    Created on: 16.10.2018 as an adaptation of the ESP8266 version of httpUpdate.ino
-
+/** This is the OmniRemote OTA Firmware. It will securely install the latest version of OmniRemote.
+ *  
+ *  --- READ FIRST ---
+ *  Prior to uploading this, you must modify the "License Key" with yours as needed.
+ *  Also you will need to modify the WiFi SSID and password to match your network.
+ *  If you do not have a license key, sign up for free at: https://gyropalm.com/omniremote/signup.php
+ *  
+ *  Flashing this on your M5StickC will install OmniRemote Free or OmniRemote Pro depending on license.
+ *  
+ *  Copyright (c) 2020 by GyroPalm, LLC.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+ *  and associated documentation files (the "Software"), to deal in the Software without restriction, 
+ *  including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ *  and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ *  subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all copies or substantial 
+ *  portions of the Software.
+ *  
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+ * LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
 */
+
+// DO NOT MODIFY OR REARRANGE THESE INCLUDES
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -13,8 +36,15 @@
 #include <HTTPClient.h>
 #include <Update.h>
 #include <HTTPUpdate.h>
-
 #include <time.h>
+
+// PLEASE CHANGE THE FOLLOWING TO YOUR "LICENSE KEY"
+String licenseKey = "m12345678";
+
+// PLEASE CHANGE THE FOLLOWING TO YOUR WIFI CREDENTIALS
+char ssid[] = "WiFi name";
+char pass[] = "yourpassword";
+
 
 WiFiMulti WiFiMulti;
 
@@ -34,13 +64,11 @@ void setClock() {
   Serial.println(F(""));
   struct tm timeinfo;
   gmtime_r(&now, &timeinfo);
-  Serial.print(F("Current time: "));
+  Serial.print(F("Time acquired: "));
   Serial.print(asctime(&timeinfo));
 }
 
-/**
- * This is lets-encrypt-x3-cross-signed.pem
- */
+// SSL root certificate
 const char* rootCACertificate = \
 "-----BEGIN CERTIFICATE-----\n" \
 "MIIF2DCCA8CgAwIBAgIQTKr5yttjb+Af907YWwOGnTANBgkqhkiG9w0BAQwFADCB\n" \
@@ -78,7 +106,6 @@ const char* rootCACertificate = \
 "-----END CERTIFICATE-----\n";
 
 void setup() {
-
   Serial.begin(115200);
   // Serial.setDebugOutput(true);
 
@@ -93,7 +120,7 @@ void setup() {
   }
 
   WiFi.mode(WIFI_STA);
-  WiFiMulti.addAP("DLwireless", "22342234");
+  WiFiMulti.addAP(ssid, pass);
 }
 
 void loop() {
@@ -101,25 +128,13 @@ void loop() {
   if ((WiFiMulti.run() == WL_CONNECTED)) {
 
     setClock();
-
     WiFiClientSecure client;
+    Serial.println("Please wait...updating firmware. This can take a minute.");
     client.setCACert(rootCACertificate);
-
     // Reading data over SSL may be slow, use an adequate timeout
     client.setTimeout(12000 / 1000); // timeout argument is defined in seconds for setTimeout
 
-    // The line below is optional. It can be used to blink the LED on the board during flashing
-    // The LED will be on during download of one buffer of data from the network. The LED will
-    // be off during writing that buffer to flash
-    // On a good connection the LED should flash regularly. On a bad connection the LED will be
-    // on much longer than it will be off. Other pins than LED_BUILTIN may be used. The second
-    // value is used to put the LED on. If the LED is on with HIGH, that value should be passed
-    // httpUpdate.setLedPin(LED_BUILTIN, HIGH);
-
-    t_httpUpdate_return ret = httpUpdate.update(client, "https://gyropalm.com/omniremote/ota.php?key=m32613740");
-    // Or:
-    //t_httpUpdate_return ret = httpUpdate.update(client, "server", 443, "file.bin");
-
+    t_httpUpdate_return ret = httpUpdate.update(client, "https://gyropalm.com/omniremote/ota.php?key=" + licenseKey);
 
     switch (ret) {
       case HTTP_UPDATE_FAILED:
