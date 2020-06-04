@@ -3,6 +3,8 @@ Control your 3D printer on Octoprint with a tiny handheld remote
 
 This repository contains the OmniRemote OTA Firmware. It will securely install the latest version of OmniRemote.
 
+![OmniRemote Home](https://raw.githubusercontent.com/dominicklee/OmniRemote/master/Images/OmniRemote%20home.png)
+
 ## Installation ##
 
 1. Prior to uploading this, you must modify the "License Key" with yours as needed. If you do not have a license key, sign up for free at: https://gyropalm.com/omniremote/signup.php
@@ -25,3 +27,5 @@ This repository contains the OmniRemote OTA Firmware. It will securely install t
 - Single press the **main button** to select an item from the menu
 - Single press the **right-button** to scroll down the menu
 - Double-click the **right-button** to scroll up the menu
+
+![OmniRemote Control](https://raw.githubusercontent.com/dominicklee/OmniRemote/master/Images/OmniRemote%20control.png)
